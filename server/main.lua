@@ -8,7 +8,7 @@ RegisterServerEvent("redemrp_respawn:server:PayForRespawn", function()
     local src = source
     local Player = RPX.GetPlayer(src)
     if Player then
-        Player.func.RemoveMoney("cash", Config.RespawnPrice)
+        Player.RemoveMoney("cash", Config.RespawnPrice)
     end
 end)
 
@@ -59,6 +59,6 @@ AddStateBagChangeHandler("isDead", nil, function(bagName, key, value)
     local Player = RPX.GetPlayer(source)
     if Player then
         print("State bag change handler isDead = "..tostring(value).." for "..source)
-        Player.func.SetMetaData("isDead", value)
+        Player.SetMetaData("isDead", value)
     end
 end)
