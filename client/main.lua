@@ -1,6 +1,20 @@
 local newCharacter = false
 local pressed = false
 local revived = false
+local minimaptype = GetResourceKvpInt('minimaptype') == 0 and 2 or 1
+
+RegisterCommand("minimap", function(source, args)
+    if minimaptype == 1 then
+        SetResourceKvpInt('minimaptype', 2)
+        minimaptype = 2
+        SetMinimapType(2)
+    else
+        SetResourceKvpInt('minimaptype', 1)
+        minimaptype = 1
+        SetMinimapType(1)
+
+    end
+end)
 
 RegisterCommand("kys", function(source, args, rawCommand) -- KILL YOURSELF COMMAND
     local src = source
@@ -54,6 +68,7 @@ Citizen.CreateThread(function()
 
                     Wait(1)
                     ProcessCamControls()
+                    HideHudAndRadarThisFrame()
                     DrawTxt(Config.LocaleTimer .. " " .. tonumber(string.format("%.0f", (((GetGameTimer() - timer) * -1)/1000))), 0.50, 0.80, 0.7, 0.7, true, 255, 255, 255, 255, true)
                 else
                     break
@@ -62,6 +77,7 @@ Citizen.CreateThread(function()
             while true do
                 Wait(0)
                 ProcessCamControls()
+                HideHudAndRadarThisFrame()
                 if not ConfirmingRespawn then
                     DrawTxt("Press E to Respawn (~e~$"..Config.RespawnPrice.."~COLOR_WHITE~)", 0.50, 0.45, 0.8, 0.8, true, 255, 255, 255, 255, true)
                 else
@@ -98,7 +114,16 @@ Citizen.CreateThread(function()
     end
 end)
 
+local SpawnSelectionOpen = false
+
 function OpenSpawnSelection()
+    SpawnSelectionOpen = true
+    CreateThread(function()
+        while SpawnSelectionOpen do
+            Wait(0)
+            HideHudAndRadarThisFrame()
+        end
+    end)
     DoScreenFadeOut(100)
     Wait(100)
     ClearFocus()
@@ -170,19 +195,23 @@ RegisterNetEvent("rpx-spawn:client:SpawnAtPosition", function(coords)
     DisplayRadar(true)
     DoScreenFadeIn(250)
     revived = false
+    SetMinimapType(minimaptype)
+    Citizen.InvokeNative(0x4D51E59243281D80, PlayerId(), true, 0, false)
 end)
 
 RegisterNUICallback('select', function(data, cb)
+    DoScreenFadeOut(250)
+    SetNuiFocus(false, false)
+    SendNUIMessage({
+        type = 2
+    })
+    Wait(250)
     RenderScriptCams(false, true, 100, true, false)
     DestroyCam(selectcamera)
     local spawn = data.selected
     local coords = Config[spawn][math.random(#Config[spawn])]
     local ped = PlayerPedId()
     SetEntityCoords(ped, coords.x, coords.y, coords.z)
-    SetNuiFocus(false, false)
-    SendNUIMessage({
-        type = 2
-    })
     FreezeEntityPosition(ped, false)
 
     ShutdownLoadingScreen()
@@ -204,8 +233,9 @@ RegisterNUICallback('select', function(data, cb)
 
     DisplayHud(true)
     DisplayRadar(true)
+    Wait(500)
     DoScreenFadeIn(250)
-
+    SpawnSelectionOpen = false
     if newCharacter then
         Wait(1000)
         exports["rpx-cinematic"]:StartCinematic("Intro")
