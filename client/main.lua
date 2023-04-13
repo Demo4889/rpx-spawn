@@ -3,16 +3,45 @@ local pressed = false
 local revived = false
 local minimaptype = GetResourceKvpInt('minimaptype') == 0 and 2 or 1
 
+local zoomlevel = 1
+
+local radar_configs = {
+    0x25B517BF,   -- zoom 0.00000000"
+    0x8997C4AF,   -- zoom 2.20000000"
+    0x264804B4,   -- zoom 3.00000000"
+    0xEF4631D2,   -- zoom 4.00000000"
+}
+
 RegisterCommand("minimap", function(source, args)
+    if args[1] then
+        if args[1] == "zoomin" then
+            zoomlevel += 1
+            if zoomlevel > #radar_configs then
+                zoomlevel = 1
+            end
+            Citizen.InvokeNative(0x9C113883487FD53C, radar_configs[zoomlevel], 0)
+            lib.notify({ title = "Minimap zoomed in!", type = "success" })
+        elseif args[1]  == "zoomout" then
+            zoomlevel -= 1
+            if zoomlevel < 0 then
+                zoomlevel = #radar_configs
+            end
+            Citizen.InvokeNative(0x9C113883487FD53C, radar_configs[zoomlevel], 0)
+            lib.notify({ title = "Minimap zoomed out!", type = "success" })
+        end
+        return
+    end
+
     if minimaptype == 1 then
         SetResourceKvpInt('minimaptype', 2)
         minimaptype = 2
         SetMinimapType(2)
+        lib.notify({ title = "Big map enabled!", type = "success" })
     else
         SetResourceKvpInt('minimaptype', 1)
         minimaptype = 1
         SetMinimapType(1)
-
+        lib.notify({ title = "Big map disabled!", type = "error" })
     end
 end)
 
