@@ -145,6 +145,9 @@ end)
 
 local SpawnSelectionOpen = false
 
+local cam
+local selectcamera
+
 function OpenSpawnSelection()
     SpawnSelectionOpen = true
     CreateThread(function()
@@ -162,7 +165,7 @@ function OpenSpawnSelection()
     Wait(100)
 
     local pos = vector3(2813.0659, -1335.537, 46.282081)
-    SetEntityCoords(PlayerPedId(), pos)
+    SetEntityCoords(PlayerPedId(), pos --[[@as number]])
 
     Wait(50)
     selectcamera = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", 2827.71, -1357.64, 80.57, 0.00, 0.00, 0.00, GetGameplayCamFov())
@@ -205,8 +208,8 @@ RegisterNetEvent("rpx-spawn:client:SpawnAtPosition", function(coords)
     FreezeEntityPosition(ped, false)
 
     ShutdownLoadingScreen()
-    NetworkResurrectLocalPlayer(coords.x, coords.y, coords.z, 59.95, true, false, false)
-    SetEntityCoordsNoOffset(ped, coords.x, coords.y, coords.z, false, false, false, true)
+    NetworkResurrectLocalPlayer(coords.x, coords.y, coords.z, 59.95, 1, false, false)
+    SetEntityCoordsNoOffset(ped, coords.x, coords.y, coords.z, false, false, false)
     ClearPedTasksImmediately(ped)
     ClearPlayerWantedLevel(PlayerId())
     FreezeEntityPosition(ped, false)
@@ -244,9 +247,9 @@ RegisterNUICallback('select', function(data, cb)
     FreezeEntityPosition(ped, false)
 
     ShutdownLoadingScreen()
-    NetworkResurrectLocalPlayer(coords.x, coords.y, coords.z, 59.95, true, true, false)
+    NetworkResurrectLocalPlayer(coords.x, coords.y, coords.z, 59.95, 1, true, false)
     local ped = PlayerPedId()
-    SetEntityCoordsNoOffset(ped, coords.x, coords.y, coords.z, false, false, false, true)
+    SetEntityCoordsNoOffset(ped, coords.x, coords.y, coords.z, false, false, false)
     ClearPedTasksImmediately(ped)
     ClearPlayerWantedLevel(PlayerId())
     FreezeEntityPosition(ped, false)

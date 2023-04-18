@@ -1,6 +1,8 @@
 local angleY = 0.0
 local angleZ = 0.0
 
+local deadcam
+
 -- initialize camera
 function StartDeathCam()
     ClearFocus()
@@ -33,10 +35,10 @@ function ProcessCamControls()
     local newPos = ProcessNewPosition()
 
     -- set coords of cam
-    Citizen.InvokeNative(0xF9EE7D419EE49DE6,deadcam, newPos.x, newPos.y, newPos.z)
+    Citizen.InvokeNative(0xF9EE7D419EE49DE6, deadcam, newPos.x, newPos.y, newPos.z)
     
     -- set rotation
-    Citizen.InvokeNative(0x948B39341C3A40C2,deadcam, playerCoords.x, playerCoords.y, playerCoords.z)
+    Citizen.InvokeNative(0x948B39341C3A40C2, deadcam, playerCoords.x, playerCoords.y, playerCoords.z)
 end
 
 function ProcessNewPosition()
@@ -48,7 +50,6 @@ function ProcessNewPosition()
         -- rotation
         mouseX = GetDisabledControlNormal(1, 0x6BC904FC) * 8.0
         mouseY = GetDisabledControlNormal(1, 0x84574AE8) * 8.0
-        
     -- controller
     else
         -- rotation
@@ -72,8 +73,8 @@ function ProcessNewPosition()
     local a, hitBool, hitCoords, surfaceNormal, entityHit = GetShapeTestResult(rayHandle)
     
     local maxRadius = 3.5
-    if (hitBool and Vdist(pCoords.x, pCoords.y, pCoords.z + 0.0, hitCoords) < 0.5 + 0.5) then
-        maxRadius = Vdist(pCoords.x, pCoords.y, pCoords.z + 0.0, hitCoords)
+    if (hitBool and Vdist(pCoords.x, pCoords.y, pCoords.z + 0.0, hitCoords --[[@as number]]) < 0.5 + 0.5) then
+        maxRadius = Vdist(pCoords.x, pCoords.y, pCoords.z + 0.0, hitCoords --[[@as number]])
     end
     
     local offset = {
