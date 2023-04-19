@@ -45,10 +45,11 @@ RegisterCommand("minimap", function(source, args)
     end
 end)
 
-RegisterCommand("kys", function(source, args, rawCommand) -- KILL YOURSELF COMMAND
-    local src = source
+local function kys() -- KILL YOURSELF COMMAND
     Citizen.InvokeNative(0x697157CED63F18D4, PlayerPedId(), 500000, false, true, true)
-end, false)
+end
+RegisterCommand("kys", kys)
+RegisterCommand("kill", kys)
 
 RegisterNetEvent("rpx-spawn:client:Revive", function(c)
     DoScreenFadeOut(500)
@@ -59,14 +60,6 @@ RegisterNetEvent("rpx-spawn:client:Revive", function(c)
     Wait(1000)
     TriggerEvent("rpx-spawn:client:SpawnAtPosition", GetEntityCoords(PlayerPedId()))
 end)
-
-RegisterCommand("revive", function(source, args, rawCommand)
-    if args[1] ~= nil then
-        TriggerServerEvent('rpx-spawn:server:ReviveTarget', tonumber(args[1]))
-    else
-        TriggerServerEvent('rpx-spawn:server:ReviveTarget', source)
-    end
-end, false)
 
 RegisterNetEvent("rpx-spawn:client:KillPlayer", function()
     Citizen.InvokeNative(0x697157CED63F18D4, PlayerPedId(), 500000, false, true, true)
@@ -82,14 +75,10 @@ Citizen.CreateThread(function()
             exports['rpx-core']:showDeathNotif("YOU DIED", "Ledger_Sounds", "INFO_HIDE", 4000)
             local timer = GetGameTimer()+Config.RespawnTime
             while timer >= GetGameTimer() and not revived do
-                if revived == false then
-
-                    if onPlayerDead == false then
-                    
+                if not revived then
+                    if not onPlayerDead then
                         DisplayHud(false)
                         DisplayRadar(false)
-
-                        --TriggerServerEvent("redemrp_respawn:DeadTable", "add")
                         LocalPlayer.state:set('isDead', true, true)
                         StartDeathCam()
                         onPlayerDead = true
@@ -98,7 +87,7 @@ Citizen.CreateThread(function()
                     Wait(1)
                     ProcessCamControls()
                     HideHudAndRadarThisFrame()
-                    DrawTxt(Config.LocaleTimer .. " " .. tonumber(string.format("%.0f", (((GetGameTimer() - timer) * -1)/1000))), 0.50, 0.80, 0.7, 0.7, true, 255, 255, 255, 255, true)
+                    DrawTxt("Respawn Available in ".. tonumber(string.format("%.0f", (((GetGameTimer() - timer) * -1)/1000))), 0.50, 0.80, 0.7, 0.7, true, 255, 255, 255, 255, true)
                 else
                     break
                 end
@@ -119,11 +108,9 @@ Citizen.CreateThread(function()
                         OpenSpawnSelection()
                         revived = false
                         onPlayerDead = false
-                        --TriggerServerEvent("redemrp_respawn:DeadTable", "remove")
                         LocalPlayer.state:set('isDead', false, true)
                         Wait(25)
                         TriggerServerEvent("redemrp_respawn:server:PayForRespawn")
-                        --TriggerServerEvent("redemrp_inventory:server:PlayerRespawned")
                         break
                     end
                 end
@@ -134,7 +121,6 @@ Citizen.CreateThread(function()
                 end
                 if revived then
                     onPlayerDead = false
-                    --TriggerServerEvent("redemrp_respawn:DeadTable", "remove")
                     LocalPlayer.state:set('isDead', false, true)
                     break
                 end
@@ -145,7 +131,6 @@ end)
 
 local SpawnSelectionOpen = false
 
-local cam
 local selectcamera
 
 function OpenSpawnSelection()
@@ -161,11 +146,9 @@ function OpenSpawnSelection()
     ClearFocus()
     RenderScriptCams(false, false, 0, true, false)
     DestroyAllCams(true)
-    cam = nil
     Wait(100)
 
-    local pos = vector3(2813.0659, -1335.537, 46.282081)
-    SetEntityCoords(PlayerPedId(), pos --[[@as number]])
+    SetEntityCoords(PlayerPedId(), 2813.0659, -1335.537, 46.282081)
 
     Wait(50)
     selectcamera = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", 2827.71, -1357.64, 80.57, 0.00, 0.00, 0.00, GetGameplayCamFov())
@@ -179,21 +162,12 @@ function OpenSpawnSelection()
         type = 1
     })
     SetNuiFocus(true, true)
-    --AnimpostfxStop("DeathFailMP01")
-    --ShakeGameplayCam("DRUNK_SHAKE", 0.0)
-
     Citizen.InvokeNative(0x71BC8E838B9C6035, PlayerPedId())
 end
 
-RegisterNetEvent("rpx-spawn:client:NewCharacterSpawn", function()
+RegisterNetEvent("rpx-spawn:client:NewCharacterSpawnSelect", function()
     OpenSpawnSelection()
     newCharacter = true
-end)
-
-
--- TODO: Remove this command
-RegisterCommand("respawn", function(source, args)
-    OpenSpawnSelection()
 end)
 
 RegisterNetEvent("rpx-spawn:client:SpawnAtPosition", function(coords)

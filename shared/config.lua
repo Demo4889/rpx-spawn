@@ -1,7 +1,6 @@
 Config = {}
-Config.RespawnTime = 600000
+Config.RespawnTime = 30000
 Config.RespawnPrice = 15
-Config.LocaleTimer = "Respawn Available in"
 
 Config.Valentine = {
     vector3(-240.6824, 740.66033, 115.8728),
