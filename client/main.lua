@@ -244,7 +244,9 @@ RegisterNUICallback('select', function(data, cb)
     SpawnSelectionOpen = false
     if newCharacter then
         Wait(1000)
-        exports["rpx-cinematic"]:StartCinematic("Intro")
+        if GetResourceState('rpx-cinematic') == 'started' then
+            exports['rpx-cinematic']:StartCinematic("Intro")
+        end
     end
 end)
 
