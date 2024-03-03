@@ -1,5 +1,4 @@
 local newCharacter = false
-local pressed = false
 local revived = false
 local minimaptype = GetResourceKvpInt('minimaptype') == 0 and 2 or 1
 
@@ -69,7 +68,7 @@ local ConfirmingRespawn = false
 local onPlayerDead = false
 Citizen.CreateThread(function()
     while true do
-        Wait(0)
+        Wait(1000)
         while IsPlayerDead(PlayerId()) and not revived do
             Wait(1)
             exports['rpx-core']:showDeathNotif("YOU DIED", "Ledger_Sounds", "INFO_HIDE", 4000)
